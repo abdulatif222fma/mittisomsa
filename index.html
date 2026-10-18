@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#ff7417">
+  <meta name="description" content="MittiSomsa — issiq va mazali somsalar, tezkor yetkazib berish.">
+  <title>MittiSomsa — Mazali lahzalar</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="MittiSomsa bosh sahifa">
+      <img src="/logo.png" alt="MittiSomsa logotipi" onerror="this.style.display='none';document.querySelector('.brand-mark').style.display='grid'">
+      <span class="brand-mark" style="display:none">M</span>
+      <span>Mitti<span>Somsa</span></span>
+    </a>
+    <button class="cart-shortcut" id="cartShortcut" aria-label="Savatni ochish">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 11.1a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 1.9-1.4L21 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dot"></span> Har kuni yangi, har kuni mazali</span>
+        <h1>Issiq somsa,<br><em>kayfiyatga yarasha!</em></h1>
+        <p>Sevimli somsangizni tanlang — biz uni eshigingizgacha yetkazamiz.</p>
+        <a class="hero-cta" href="#menu">Menyuni ko‘rish <span>↓</span></a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="sun"></div><div class="hero-ring"></div>
+        <div class="somsa-emoji">🥟</div>
+        <span class="float-chip chip-one">🔥 Tandirdan yangi</span>
+        <span class="float-chip chip-two">♡ Mehr bilan</span>
+      </div>
+    </section>
+
+    <section class="menu-section" id="menu">
+      <div class="section-head">
+        <div><span class="eyebrow">BIZNING TAOMLAR</span><h2>Menyu</h2></div>
+        <span class="menu-note">Mazali tanlov — shu yerda</span>
+      </div>
+      <label class="searchbox">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+        <input id="searchInput" type="search" placeholder="Somsa qidirish..." autocomplete="off">
+      </label>
+      <div class="category-row" id="categories">
+        <button class="category active" data-category="Barchasi">Barchasi</button>
+        <button class="category" data-category="Go‘shtli">Go‘shtli</button>
+        <button class="category" data-category="Tovuqli">Tovuqli</button>
+        <button class="category" data-category="Setlar">Setlar</button>
+        <button class="category" data-category="Ichimliklar">Ichimliklar</button>
+      </div>
+      <div class="menu-status" id="menuStatus">Menyu yuklanmoqda...</div>
+      <div class="product-grid" id="productGrid"></div>
+    </section>
+
+    <section class="promise-row">
+      <div><span>♨</span><b>Doim yangi</b><small>Buyurtma uchun tayyorlanadi</small></div>
+      <div><span>⌁</span><b>Tez yetkazish</b><small>Manzilingizgacha</small></div>
+      <div><span>♡</span><b>Mehr bilan</b><small>Har bir buyurtmada</small></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Pastki menyu">
+    <a class="nav-item selected" href="#menu"><span>⌂</span><small>Bosh sahifa</small></a>
+    <button class="nav-item" id="navCart"><span>🛍</span><small>Savat</small></button>
+    <a class="nav-item" href="#menu"><span>☰</span><small>Menyu</small></a>
+  </nav>
+
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="cartDrawer" aria-label="Savat">
+    <div class="drawer-head"><div><span class="eyebrow">SIZNING TANLOVINGIZ</span><h2>Savat</h2></div><button class="icon-button" data-close aria-label="Yopish">×</button></div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-bottom"><div class="total-line"><span>Jami</span><strong id="cartTotal">0 so‘m</strong></div><button class="primary-button" id="checkoutButton">Buyurtma berish <span>→</span></button></div>
+  </aside>
+
+  <section class="checkout-modal" id="checkoutModal" aria-label="Buyurtma berish">
+    <div class="checkout-head"><button class="back-button" id="backToCart">←</button><div><span class="eyebrow">YANA BIR QADAM</span><h2>Buyurtma berish</h2></div><button class="icon-button" id="closeCheckout">×</button></div>
+    <div class="checkout-scroll">
+      <h3>Ma’lumotlaringizni kiriting</h3>
+      <form id="orderForm">
+        <label class="field">Ism<input name="name" placeholder="Ismingizni kiriting" required minlength="2" maxlength="70"></label>
+        <label class="field">Telefon raqam<input name="phone" type="tel" placeholder="+998 XX XXX XX XX" required inputmode="tel" pattern="[\+0-9 ()-]{9,20}"></label>
+        <label class="field">Manzil<input id="addressInput" name="address" placeholder="Manzilingizni kiriting" required maxlength="250"></label>
+        <button type="button" class="map-open-button" id="openMap"><span>⌖</span> Kartadan tanlang</button>
+        <div class="location-hint" id="locationHint">Xaritadan nuqtani tanlang yoki manzilni qo‘lda kiriting.</div>
+        <div class="field-label">To‘lov usuli</div>
+        <div class="payment-options">
+          <label><input type="radio" name="payment" value="Naqd pul" checked><span>Naqd pul</span></label>
+          <label><input type="radio" name="payment" value="Karta orqali"><span>Karta orqali</span></label>
+        </div>
+        <label class="field">Izoh <span class="optional">(ixtiyoriy)</span><textarea name="comment" placeholder="Masalan: qo‘ng‘iroq qiling..." rows="2" maxlength="300"></textarea></label>
+        <div class="checkout-total"><span>To‘lov uchun jami</span><strong id="checkoutTotal">0 so‘m</strong></div>
+        <button class="primary-button confirm-button" id="submitOrder" type="submit">Buyurtmani tasdiqlash</button>
+        <p class="form-note">Buyurtma yuborilgach, admin siz bilan bog‘lanishi mumkin.</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="map-modal" id="mapModal" aria-label="Xaritadan manzil tanlash">
+    <div class="map-head"><div><span class="eyebrow">MANZILNI BELGILANG</span><h2>Xaritadan tanlang</h2></div><button class="icon-button" id="closeMap">×</button></div>
+    <p class="map-instruction">Xaritadagi kerakli joyni bosing yoki geolokatsiyadan foydalaning.</p>
+    <div id="map"></div>
+    <div class="map-actions"><button class="secondary-button" id="useMyLocation">◎ Mening joylashuvim</button><button class="primary-button" id="confirmLocation">Manzilni tanlash</button></div>
+    <p class="map-disclaimer">Joylashuv faqat siz ruxsat berganingizda olinadi. Xarita OpenStreetMap orqali ishlaydi.</p>
+  </section>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
