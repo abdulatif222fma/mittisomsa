@@ -33,5 +33,16 @@ async function main(update){
  if(text.startsWith("/"))return send(chat,"Buyruq tushunilmadi. /help ni bosing.");return send(chat,"Mahsulot qo‘shish uchun rasmni caption bilan yuboring yoki /catalog buyrug‘ini bosing.");
 }
 async function showProducts(chat){const ps=await getProducts();if(!ps.length)return send(chat,"Katalog bo‘sh. Mahsulot rasmini caption bilan yuboring.");await send(chat,`📋 <b>MittiSomsa katalogi</b>\nJami: ${ps.length} ta mahsulot\nO‘chirish uchun kerakli tugmani bosing.`);for(const p of ps)await send(chat,`🥟 <b>${safe(p.name)}</b>\n📦 ${safe(p.description||"—")}\n💰 ${money(p.price)}\n🆔 <code>${p.id}</code>`,{reply_markup:{inline_keyboard:[[{text:"🗑 O‘chirish: "+p.name.slice(0,35),callback_data:"del:"+p.id}]]}})}
-export default async req=>{if(req.httpMethod!=="POST")return{statusCode:200,body:"MittiSomsa bot webhook ishlayapti."};try{await main(JSON.parse(req.body||"{}"));return{statusCode:200,body:"ok"}}catch(e){console.error("Bot webhook error",e);return{statusCode:200,body:"ok"}}};
+export default async req=>{
+  const method = req.method || req.httpMethod || "GET";
+  if(method!=="POST") return new Response("MittiSomsa bot webhook ishlayapti.", {status:200, headers:{"Content-Type":"text/plain; charset=utf-8"}});
+  try {
+    const update = typeof req.json === "function" ? await req.json() : JSON.parse(req.body||"{}");
+    await main(update);
+    return new Response("ok", {status:200});
+  } catch(e) {
+    console.error("Bot webhook error",e);
+    return new Response("ok", {status:200});
+  }
+};
 export const config={path:"/.netlify/functions/bot"};

@@ -1,9 +1,8 @@
 import { getStore } from "@netlify/blobs";
 
-const json = (body, statusCode=200) => ({
-  statusCode,
-  headers: { "Content-Type":"application/json; charset=utf-8", "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Headers":"Content-Type", "Access-Control-Allow-Methods":"GET,POST,OPTIONS" },
-  body: JSON.stringify(body)
+const json = (body, statusCode=200) => new Response(JSON.stringify(body), {
+  status: statusCode,
+  headers: { "Content-Type":"application/json; charset=utf-8", "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Headers":"Content-Type", "Access-Control-Allow-Methods":"GET,POST,OPTIONS" }
 });
 const store = () => getStore({ name:"mittisomsa-products", consistency:"strong" });
 const ordersStore = () => getStore({ name:"mittisomsa-orders", consistency:"strong" });
@@ -23,11 +22,12 @@ async function notifyAdmins(text){
   if(results.some(r=>!r.ok)) throw new Error("Telegramga yuborilmadi");
 }
 export default async (req) => {
-  if(req.httpMethod==="OPTIONS") return json({ok:true});
+  const method = req.method || req.httpMethod || "GET";
+  if(method==="OPTIONS") return json({ok:true});
   try{
-    if(req.httpMethod==="GET") return json({products:await getProducts()});
-    if(req.httpMethod!=="POST") return json({error:"Method not allowed"},405);
-    const body=JSON.parse(req.body||"{}");
+    if(method==="GET") return json({products:await getProducts()});
+    if(method!=="POST") return json({error:"Method not allowed"},405);
+    const body = typeof req.json === "function" ? await req.json() : JSON.parse(req.body||"{}");
     if(body.type!=="order"||!body.order) return json({error:"Noto‘g‘ri so‘rov"},400);
     const o=body.order;
     if(!o.name||!o.phone||!o.address||!Array.isArray(o.items)||!o.items.length) return json({error:"Ma’lumotlarni to‘liq kiriting"},400);
